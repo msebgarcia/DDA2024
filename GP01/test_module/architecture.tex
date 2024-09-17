@@ -1,0 +1,99 @@
+\documentclass{standalone}
+\usepackage{tikz}
+\usepackage{circuitikz}
+\usetikzlibrary{circuits.logic.US}
+
+\begin{document}
+    \footnotesize
+    \begin{circuitikz}
+        \tikzset{mux 4by2/.style={muxdemux,
+                                  muxdemux def={Lh=4, NL=4, Rh=3, NB=1, w=2, square pins=4},
+                                  muxdemux label={
+                                      L1=$s_{00}$, 
+                                      L2=$s_{01}$, 
+                                      L3=$s_{10}$, 
+                                      L4=$s_{11}$}
+                                  }},
+        \tikzset{flipflop D/.style={flipflop, flipflop def={t1=D, t6=Q, td=\ctikztextnot{RST}, c2=1, n2=0, t2={\texttt{CLK}}}}}
+
+        \draw [dashed] (-0.5,2) rectangle (30,-7);
+
+        \node[circ, label=left:{$x_0$}] (x0) at (-1,0) {};
+        \node[circ] (x0internal) at (1,0) {};
+
+        \node[mux 4by2  , anchor=lpin 1, scale=0.8] (firstmux)  at (2,0) {}; 
+        \node[flipflop D, anchor=pin  1, scale=0.7] (x1)        at (5, -.675) {};
+
+        \node[mux 4by2  , anchor=lpin 1, scale=0.8] (secondmux) at (8 , -.68) {}; 
+        \node[flipflop D, anchor=pin  1, scale=0.7] (x2)        at (11, -1.35) {};
+
+        \node[mux 4by2  , anchor=lpin 1, scale=0.8] (thirdmux)  at (14, -1.35) {}; 
+        \node[flipflop D, anchor=pin  1, scale=0.7] (x3)        at (17, -2.03) {};
+
+        \node[adder, scale=0.9](addernode) at (20, -2.03) {};
+
+        \node[dipchip, num pins=2, hide numbers, no topmark, external pins width=0] (divby4) at (22, -2.03){$>>>2$};
+        
+        \node[flipflop D, anchor=pin  1, scale=0.7] (y0) at (24, -2.03) {};
+        \node[flipflop D, anchor=pin  1, scale=0.7] (y1) at (27, -2.03) {};
+        \draw (y1.pin 6) --++ (0.5,0) node[circ, label=below:{$y_1$}](exty0p6) {};
+
+        \draw (x0) to[bmultiwire=32] (x0internal);
+        \draw (x0internal) -- (firstmux.lpin 1);
+        \draw (x0internal) |- (firstmux.lpin 3);
+        \draw (x0internal) |- (firstmux.lpin 4);
+        \draw (x0internal) |-++(0.3, -3) to[crossing]++(0.35,0) --++ (4.82,0) to[crossing]++(0.2,0) --++(0.3,0) |- (secondmux.lpin 2);
+        \draw (firstmux.rpin 1) to[bmultiwire=32] (x1.pin 1);
+        \node [circ, label=above right:{$x_1$}] (lx1) at (x1.pin 6) {};
+
+        \draw (x1.pin 6) to[bmultiwire=32] (secondmux.lpin 1);
+        \draw (secondmux.rpin 1) to[bmultiwire=32] (x2.pin 1);
+        \node [circ, label=above right:{$x_2$}] (lx2) at (x2.pin 6) {};
+        \draw (x2.pin 6) |-++(-5, -2) |- (secondmux.lpin 3);
+        \draw (x2.pin 6) |-++(-5, -2) |- (secondmux.lpin 4);
+        \draw (x2.pin 6) |-++(-5.9, -2) to[crossing]++(-0.2, 0)  -|++ (-5,1.6) to[crossing]++(0,0.8) to[crossing]++(0,0.1) |- (firstmux.lpin 2);
+
+        \draw (x2.pin 6) to[bmultiwire=32] (thirdmux.lpin 1);
+        \draw (thirdmux.rpin 1) to[bmultiwire=32] (x3.pin 1);
+        \node [circ, label=above:{$x_3$}] (lx3) at (x3.pin 6) {};
+        \draw (x1.pin 6) |-++ ( 6.5, -3) |- (thirdmux.lpin 2);
+        \draw (x3.pin 6) |-++ (-5, -1.87) |- (thirdmux.lpin 3);
+        \draw (x3.pin 6) |-++ (-5, -1.87) |- (thirdmux.lpin 4);
+
+        \draw [->] (x0internal) --++ ( 0, 1)  -|   (addernode.90);
+        \draw [->] (x1.pin 6)   |-++ (12, 1)  --   (addernode.120);
+        \draw [->] (x2.pin 6)   |-++ ( 6, 1)  --   (addernode.150);
+        \draw [->] (x3.pin 6)   to[bmultiwire=32]  (addernode.180);
+        \draw [-]  (y1.pin 6)   to[bmultiwire=32]  (exty0p6);
+        \draw [->] (exty0p6)    |-++ (-8.5,1.5) -- (addernode.60);
+
+        \draw [->] (addernode.0) to[bmultiwire=32] (divby4.bpin 1);
+
+        \draw (divby4.bpin 2) to[bmultiwire=32] (y0.pin 1);
+        \node [circ, label=below:{$y_0$}] (ly0) at (y0.pin 6) {};
+        \draw (y0.pin 6) to[bmultiwire=32] (y1.pin 1);
+
+        \draw (y0.pin 6) --++(0,1.2) to[crossing]++(0,.6) |-++(5,0.5) node[circ, label=right:{$y_0$}](){};
+
+        \node[circ, label=left:{$sel$}] (isel) at (-1,-5) {};
+        \draw (isel) to[bmultiwire=2]++(2,0) node[coordinate](internalsel){};
+        \draw (internalsel) --++(13.675,0) to[crossing] (thirdmux.bbpin 1);
+        \draw (internalsel) -|++(7.675,1.2) node[midway,circ](){} to[crossing]++(0,.25) to[crossing]++(0,.4) -- (secondmux.bpin 1);
+        \draw (internalsel) -|++(7.675,1.2) to[crossing]++(0,.25) to[crossing]++(0,.4) -- (secondmux.bpin 1);
+        \draw (internalsel) -|++(1.675,1.5) node[midway,circ](){} to[crossing]++(0,.3) to[crossing]++(0,.4) -- (firstmux.bpin 1);
+
+        \node[circ, color=red, label=left:{$clk$}] (iclk) at (-1, -6) {};
+        \draw [-, color=red] (iclk) -|++(27.5,0) |- (y1.pin 2);
+        \draw [-, color=red] (iclk) -|++(24.5,0) node[circ,color=red](){} |- (y0.pin 2);
+        \draw [-, color=red] (iclk) -|++(17.5,0) node[circ,color=red](){} |- (x3.pin 2);
+        \draw [-, color=red] (iclk) -|++(11.5,0) node[circ,color=red](){} |- (x2.pin 2);
+        \draw [-, color=red] (iclk) -|++(5.5,0) node[circ,color=red](){} |- (x1.pin 2);
+
+        \node[circ, color=blue, label=left:{$rst\_n$}] (irst) at (-1, -6.5) {};
+        \draw [-, color=blue] (irst) -| (y1.down);
+        \draw [-, color=blue] (irst) -| (y0.down) node [midway, circ](){};
+        \draw [-, color=blue] (irst) -| (x3.down) node [midway, circ](){};
+        \draw [-, color=blue] (irst) -| (x2.down) node [midway, circ](){};
+        \draw [-, color=blue] (irst) -| (x1.down) node [midway, circ](){};
+    \end{circuitikz}
+\end{document}
