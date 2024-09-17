@@ -1,0 +1,61 @@
+\documentclass{standalone}
+\usepackage{tikz}
+\usetikzlibrary{dsp}
+
+\DeclareMathAlphabet{\mathpzc}{OT1}{pzc}{m}{it}
+\newcommand{\z}{\mathpzc{z}}
+
+\begin{document}
+    \begin{tikzpicture}
+        \matrix (m1) [row sep=10mm, column sep=20mm] {
+            %--------------------------------------------------------------------
+            \node[coordinate , label=left :{$x[n]$}] (m00) { } ; &
+            \node[dspnodefull                      ] (m01) { } ; &
+            \node[dspnodeopen                      ] (m02) { } ; &
+            \node[dspnodeopen                      ] (m03) { } ; &
+            \node[dspnodefull                      ] (m04) { } ; &
+            \node[coordinate , label=right:{$y[n]$}] (m05) { } ; \\
+            %--------------------------------------------------------------------
+            \node[coordinate                       ] (m10) { } ; &
+            \node[dspnodefull                      ] (m11) { } ; &
+            \node[dspnodeopen                      ] (m12) { } ; &
+            \node[dspnodeopen                      ] (m13) { } ; &
+            \node[dspnodefull                      ] (m14) { } ; \\
+            %--------------------------------------------------------------------
+            \node[coordinate                       ] (m20) { } ; &
+            \node[dspnodefull                      ] (m21) { } ; &
+            \node[dspnodeopen                      ] (m22) { } ; &
+            \node[coordinate                       ] (m23) { } ; &
+            \node[coordinate                       ] (m24) { } ; \\
+            %--------------------------------------------------------------------
+            \node[coordinate                       ] (m30) { } ; &
+            \node[coordinate                       ] (m31) { } ; &
+            \node[coordinate                       ] (m32) { } ; \\
+        };
+
+        % Draw connections
+        \draw[dspline] (m00) -- (m01);
+
+        \foreach \i [evaluate = \i as \j using int(\i+1)] in {1,2}
+            \draw[dspconn] (m0\i) -- (m0\j);
+
+        \draw[dspconn] (m03) -- (m04) -- (m05);
+
+        \foreach \i [evaluate = \i as \j using int(\i+1)] in {0,1,2}
+            \draw[dspflow] (m\i1) -- node[midway,left] {$\z^{-1}$} (m\j1);
+
+        \draw[dspflow] (m11) -- node[midway,above] {$-1$} (m12);
+        \draw[dspconn] (m21) -- (m22);
+        \draw[dspconn] (m31) -| (m22);
+        \draw[dspconn] (m22) -- (m12);
+        \draw[dspconn] (m12) -- (m02);
+
+        \foreach \i [evaluate = \i as \j using int(\i+1)] in {0,1}
+            \draw[dspflow] (m\i4) -- node[midway,right] {$\z^{-1}$} (m\j4);
+        
+        \draw[dspflow] (m14) -- node[midway,above] {$0.5$} (m13);
+        \draw[dspflow] (m24) -- node[midway,above] {$0.25$} (m23);
+        \draw[dspconn] (m23) -- (m13);
+        \draw[dspconn] (m13) -- (m03);
+    \end{tikzpicture}
+\end{document}
