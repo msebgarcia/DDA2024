@@ -3,7 +3,7 @@ module iir_filter#(
     // * Parameters
     // * -------------------------------------------------------------------------------------------
     parameter                                                                NB_DATA_IN       =  8 ,
-    parameter                                                                NB_DATA_OUT      = 12 ,
+    parameter                                                                NB_DATA_OUT      = 11 ,
     parameter                                                                N_INPUT_SAMPLES  =  3 ,
     parameter                                                                N_OUTPUT_SAMPLES =  2 ,
     parameter                                                                ADD_OUTPUT_PIPE  =  0

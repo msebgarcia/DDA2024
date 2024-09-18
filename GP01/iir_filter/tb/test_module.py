@@ -46,7 +46,7 @@ async def run_sinusoidal_wave(dut: SimHandleBase, waiting_clocks: int, freq_in_h
 async def TC001(dut):
     """TC001: Constant input"""
     await init_rtl(dut)
-    dut.i_data.value = 3
+    dut.i_data.value = -128
 
     for _ in range(200):
         await RisingEdge(dut.i_clock)

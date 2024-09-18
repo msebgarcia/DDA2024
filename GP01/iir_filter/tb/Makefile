@@ -8,7 +8,7 @@ PWD=$(shell pwd)
 
 # Matrix parameters
 NB_DATA_IN       ?= 8
-NB_DATA_OUT      ?= 12
+NB_DATA_OUT      ?= 11
 N_INPUT_SAMPLES  ?= 3
 N_OUTPUT_SAMPLES ?= 2
 
