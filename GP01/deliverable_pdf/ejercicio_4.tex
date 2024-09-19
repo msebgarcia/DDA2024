@@ -6,7 +6,9 @@
 
 \subsection{Cálculo de la cantidad de bits de salida}
 Se consideró que las 4 muestras en X podían tener los valores límites, es decir, -128 y 127. De donde se obtiene un mínimo de $4\cdot(-128) = -512$ y un máximo de $4\cdot127 = 508$.\\
+
 Para el caso de las muestras en Y se tuvieron en cuenta los extremos considerados previamente, de donde se obtuvo: $0.75\cdot(-512) = -384$ y $0.75\cdot508 = 381$.\\
+
 A partir de estos extremos, se calculó el rango:
 \[
     rango =
@@ -19,7 +21,7 @@ A partir de estos extremos, se calculó el rango:
 Para representar dicho rango se requieren 11 bits.
 
 \subsection{Código}
-\inputminted[fontsize=\scriptsize]{systemverilog}{../iir_filter/rtl/iir_filter.sv}
+\inputminted[fontsize=\footnotesize]{systemverilog}{../iir_filter/rtl/iir_filter.sv}
 
 \subsection{Verificación}
 Se plantearon 6 TCs, los cuales son:
@@ -71,7 +73,6 @@ async def TC005(dut):
 
     \item TC006: Reset y recuperación con una onda cuadrada
         \begin{minted}[fontsize=\footnotesize]{python}
-
 async def TC006(dut):
     await init_rtl(dut)
 
