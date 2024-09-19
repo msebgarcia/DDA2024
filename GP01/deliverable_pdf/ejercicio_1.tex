@@ -1,0 +1,177 @@
+\section{Ejercicio 1}
+\subsection{Código}
+\inputminted[fontsize=\footnotesize]{systemverilog}{../sum_accumulator/rtl/sum_accumulator.sv}
+
+\subsection{Overflow}
+Teniendo en cuenta que el acumulador suma de a 2 y la salida es de 6 bits, cuyo valor de cuenta máximo es 63, se necesitan 32 clocks para que produzca overflow.
+
+\subsection{Verificación}
+Se realizaron 7 TCs utilizando cocotb, para no sobrecargar el archivo se colocaron solo las funciones principales, las cuales son:
+\begin{itemize}
+    \item TC001: Entrada constante con el selector en 2
+        \begin{minted}[fontsize=\footnotesize]{python}
+async def TC001(dut):
+    await init_rst_and_clk(dut)
+    dut.i_data1.value = 1
+    dut.i_data2.value = 2 
+    dut.i_sel.value   = 2
+
+    for _ in range(200):
+        await RisingEdge(dut.i_clk)
+        \end{minted}
+
+    \item TC002: Entrada constante con el selector en 0
+        \begin{minted}[fontsize=\footnotesize]{python}
+async def TC002(dut):
+    await init_rst_and_clk(dut)
+    dut.i_data1.value = 1
+    dut.i_data2.value = 2 
+    dut.i_sel.value   = 0
+
+    for _ in range(100):
+        await RisingEdge(dut.i_clk)
+        \end{minted}
+
+    \item TC003: Entrada constante con el selector en 1
+        \begin{minted}[fontsize=\footnotesize]{python}
+async def TC003(dut):
+    await init_rst_and_clk(dut)
+    dut.i_data1.value = 3
+    dut.i_data2.value = 2 
+    dut.i_sel.value   = 1
+
+    for _ in range(100):
+        await RisingEdge(dut.i_clk)
+        \end{minted}
+
+    \item TC004: Ambas entradas en 1 con el selector en 1
+        \begin{minted}[fontsize=\footnotesize]{python}
+async def TC004(dut):
+    await init_rst_and_clk(dut)
+    dut.i_data1.value =  1
+    dut.i_data2.value =  1 
+    dut.i_sel.value   =  1
+    count             = -1
+
+    for _ in range(200):
+        await RisingEdge(dut.i_clk)
+        count += 1
+        if (dut.o_overflow.value == 1):
+            print(f"Clocks passed until overflow rises: {count}")
+            count = 0
+        \end{minted}
+
+    \item TC005: Cambio en las entradas de dato con selector constante
+        \begin{minted}[fontsize=\footnotesize]{python}
+async def TC005(dut):
+    await init_rst_and_clk(dut)
+    dut.i_sel.value   = 1
+
+    for _ in range(10):
+        rnd_wait = rnd.randint(10,50)
+        dut.i_data1.value = rnd.randint(0,2**(int(dut.NB_DATA_IN.value))-1)
+        dut.i_data2.value = rnd.randint(0,2**(int(dut.NB_DATA_IN.value))-1)
+        for _ in range (rnd_wait):
+            await RisingEdge(dut.i_clk)
+        \end{minted}
+
+    \item TC006: Cambio en todas las entradas
+        \begin{minted}[fontsize=\footnotesize]{python}
+async def TC006(dut):
+    await init_rst_and_clk(dut)
+
+    for _ in range(10):
+        rnd_wait = rnd.randint(10,50)
+        dut.i_sel.value   = rnd.randint(0,2)
+        dut.i_data1.value = rnd.randint(0,2**(int(dut.NB_DATA_IN.value))-1)
+        dut.i_data2.value = rnd.randint(0,2**(int(dut.NB_DATA_IN.value))-1)
+        for _ in range (rnd_wait):
+            await RisingEdge(dut.i_clk)
+        \end{minted}
+
+    \item TC007: Reset y recuperación
+        \begin{minted}[fontsize=\footnotesize]{python}
+async def TC007(dut):
+    await init_rst_and_clk(dut)
+
+    for _ in range(10):
+        dut.i_data1.value = rnd.randint(0,2**(int(dut.NB_DATA_IN.value))-1)
+        dut.i_data2.value = rnd.randint(0,2**(int(dut.NB_DATA_IN.value))-1)
+        dut.i_sel.value   = rnd.randint(0,2)
+
+        dut.i_rst_n.value = 0
+        await Timer(rnd.randint(150,500), units='ns')
+
+        dut.i_rst_n.value = 1
+        await Timer(rnd.randint(150,500), units='ns')
+        \end{minted}
+\end{itemize}
+
+La función común init\_rst\_and\_clk(dut) es:
+\begin {minted}[fontsize=\footnotesize]{python}
+async def init_rst_and_clk(dut):
+    cocotb.start_soon(Clock(dut.i_clk, 10, units="ns").start())
+    tester = RtlModel(dut)
+
+    dut.i_rst_n.value = 1
+    dut.i_data1.value = 0
+    dut.i_data2.value = 0 
+    dut.i_sel.value   = 0
+    await Timer(10, units='ns')
+    dut.i_rst_n.value = 0
+    await Timer(35, units='ns')
+    dut.i_rst_n.value = 1
+    tester.start()
+\end{minted}
+
+Y, por último, las funciones básicas para realizar los chequeos necesarios:
+\begin{minted}[fontsize=\footnotesize]{python}
+def beh_model(self, in1: int, in2: int, sel: int) -> List[LogicArray]:
+    if (sel == 0):
+        self.sum += int(in2)
+    elif (sel == 1):
+        self.sum += int(in1)+int(in2)
+    elif (sel == 2):
+        self.sum += int(in1)
+
+    max_sum_value = 2**int(self.dut.NB_DATA_OUT.value)
+    oflow = self.sum >= max_sum_value
+    if (oflow):
+        self.sum -= max_sum_value
+
+    returning_sum   = LogicArray.from_signed(self.sum, Range(int(self.dut.NB_DATA_OUT.value)+1, "downto", 0))
+    returning_oflow = LogicArray('1' if oflow else '0', Range(0, "downto", 0))
+
+    return [returning_sum, returning_oflow]
+
+
+async def _check(self) -> None:
+    self.delayed_inputs = []
+
+    while True:
+        if (self.dut.i_rst_n.value == 0):
+            await Timer(1, units='ns') # NOTE: Improves run time
+            assert self.dut.o_data.value     == 0
+            assert self.dut.o_overflow.value == 0
+            self.ca_reset()
+            continue
+
+        await RisingEdge(self.dut.i_clk)
+        await RisingEdge(self.dut.i_clk)
+
+        outputs = await self.output_monitor.values.get()
+        inputs  = self.input_monitor.values.get_nowait()
+        
+        self.delayed_inputs.append(inputs)
+
+        if (len(self.delayed_inputs) > 1):
+            self.delayed_input = self.delayed_inputs.pop(0)
+            expected = self.beh_model(in1 = self.delayed_input["in1"], in2 = self.delayed_input["in2"], sel = self.delayed_input["sel"])
+            # print(f'Expected: {expected[0]} | Got: {outputs["data"]}')
+            assert outputs["data"]     == expected[0][int(self.dut.NB_DATA_OUT.value)-1:0]
+            assert outputs["overflow"] == expected[1]
+\end{minted}
+
+Los pythons completos, asi como el makefile y un VCD con el dump de señales se puede encontrar en este \href{https://github.com/msebgarcia/DDA2024/tree/938fbd1fccef5ac96fa643486dc815432e2d11ef/GP01/sum_accumulator}{link de github}. Específicamente los archivos \href{https://github.com/msebgarcia/DDA2024/blob/main/GP01/sum_accumulator/tb/test_module.py}{test\_module.py} contiene los TCs y en \href{https://github.com/msebgarcia/DDA2024/blob/main/GP01/sum_accumulator/tb/model.py}{model.py} se encuentra el modelado del RTL.
+\\
+

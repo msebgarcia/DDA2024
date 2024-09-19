@@ -1,0 +1,93 @@
+\section{Ejercicio 2}
+\subsection{Código}
+\inputminted[fontsize=\footnotesize]{systemverilog}{../arith_operator/rtl/arith_operator.sv}
+
+\subsection{Verificación}
+Se realizaron 5 TCs, que se pueden encontrar en este \href{https://github.com/msebgarcia/DDA2024/blob/main/GP01/arith_operator/tb/test_module.py}{link de github}, utilizando cocotb al igual que en el inciso anterior:
+\begin{itemize}
+    \item TC001: Suma con datos de entrada aleatorios
+        \begin{minted}[fontsize=\footnotesize]{python}
+async def TC001(dut):
+    await init_test(dut)
+    dut.i_sel.value    = 0
+    for _ in range(100):
+        dut.i_data_a.value = rnd.randint(-2**(int(dut.NB_DATA.value)-1),2**(int(dut.NB_DATA.value)-1)-1)
+        dut.i_data_b.value = rnd.randint(-2**(int(dut.NB_DATA.value)-1),2**(int(dut.NB_DATA.value)-1)-1)
+        await Timer(rnd.randint(10,50), 'ns')
+        \end{minted}
+
+    \item TC002: Resta con datos de entrada aleatorios
+        \begin{minted}[fontsize=\footnotesize]{python}
+async def TC002(dut):
+    await init_test(dut)
+    dut.i_sel.value    = 1
+    for _ in range(100):
+        dut.i_data_a.value = rnd.randint(-2**(int(dut.NB_DATA.value)-1),2**(int(dut.NB_DATA.value)-1)-1)
+        dut.i_data_b.value = rnd.randint(-2**(int(dut.NB_DATA.value)-1),2**(int(dut.NB_DATA.value)-1)-1)
+        await Timer(rnd.randint(10,50), 'ns')
+        \end{minted}
+
+    \item TC003: Operación And  con datos de entrada aleatorios
+        \begin{minted}[fontsize=\footnotesize]{python}
+async def TC003(dut):
+    await init_test(dut)
+    dut.i_sel.value    = 2
+    for _ in range(100):
+        dut.i_data_a.value = rnd.randint(-2**(int(dut.NB_DATA.value)-1),2**(int(dut.NB_DATA.value)-1)-1)
+        dut.i_data_b.value = rnd.randint(-2**(int(dut.NB_DATA.value)-1),2**(int(dut.NB_DATA.value)-1)-1)
+        await Timer(rnd.randint(10,50), 'ns')
+        \end{minted}
+
+    \item TC004: Operación Or con datos de entrada aleatorios
+        \begin{minted}[fontsize=\footnotesize]{python}
+async def TC004(dut):
+    await init_test(dut)
+    dut.i_sel.value    = 3
+    for _ in range(100):
+        dut.i_data_a.value = rnd.randint(-2**(int(dut.NB_DATA.value)-1),2**(int(dut.NB_DATA.value)-1)-1)
+        dut.i_data_b.value = rnd.randint(-2**(int(dut.NB_DATA.value)-1),2**(int(dut.NB_DATA.value)-1)-1)
+        await Timer(rnd.randint(10,50), 'ns')
+        \end{minted}
+
+    \item TC005: Randomización de operación y datos de entrada
+        \begin{minted}[fontsize=\footnotesize]{python}
+async def TC005(dut):
+    await init_test(dut)
+    for _ in range(100):
+        dut.i_sel.value    = rnd.randint(0, 2**int(dut.NB_SEL.value)-1)
+        dut.i_data_a.value = rnd.randint(-2**(int(dut.NB_DATA.value)-1),2**(int(dut.NB_DATA.value)-1)-1)
+        dut.i_data_b.value = rnd.randint(-2**(int(dut.NB_DATA.value)-1),2**(int(dut.NB_DATA.value)-1)-1)
+        await Timer(rnd.randint(10,50), 'ns')
+        \end{minted}
+\end{itemize}
+
+La función common para inicializar el test es:
+\begin{minted}[fontsize=\footnotesize]{python}
+async def init_test(dut):
+    tester = RtlModel(dut)
+
+    dut.i_sel.value    = 0
+    dut.i_data_a.value = 0
+    dut.i_data_b.value = 0
+    await Timer(rnd.randint(10,50), 'ns')
+    tester.start()
+\end{minted}
+
+La función para modelar el RTL es:
+\begin{minted}[fontsize=\scriptsize]{python}
+async def run_beh(self, dut) -> None:
+    while (True):
+        await Timer(1, 'ns')
+        obtained_data = dut.o_data_c.value
+        if   (self.dut.i_sel.value == LogicArray('00', Range(int(dut.NB_SEL.value)-1, 'downto', 0))):
+            assert obtained_data == LogicArray.from_signed(int(dut.i_data_a.value) + int(dut.i_data_b.value), Range(int(self.dut.NB_DATA.value)+1, "downto", 0))[int(self.dut.NB_DATA.value)-1:0]
+        elif (self.dut.i_sel.value == LogicArray('01', Range(int(dut.NB_SEL.value)-1, 'downto', 0))):
+            assert obtained_data == LogicArray.from_signed(int(dut.i_data_a.value) - int(dut.i_data_b.value), Range(int(self.dut.NB_DATA.value)+1, "downto", 0))[int(self.dut.NB_DATA.value)-1:0]
+        elif (self.dut.i_sel.value == LogicArray('10', Range(int(dut.NB_SEL.value)-1, 'downto', 0))):
+            assert dut.o_data_c.value == dut.i_data_a.value & dut.i_data_b.value
+        else:
+            assert obtained_data == dut.i_data_a.value or dut.i_data_b.value
+\end{minted}
+
+En este caso, tanto el modelo del RTL como los TCs se colocaron en el mismo archivo por simplicidad. También se subió el .vcd donde se dumpearon las señales.
+
