@@ -5,7 +5,8 @@ module shiftleds
     // * ---------------------------------------------------
     parameter                        N_LEDS     =  4       ,
     parameter                        NB_COUNTER = 32       ,
-    parameter                        NB_SW      =  4)
+    parameter                        NB_SW      =  4
+)
 (
     // * ---------------------------------------------------
     // * Outputs
