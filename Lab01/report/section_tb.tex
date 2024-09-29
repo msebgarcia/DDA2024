@@ -1,0 +1,28 @@
+\section{Testbench}
+
+\href{https://github.com/msebgarcia/DDA2024/blob/main/Lab01/tb/tb_shiftleds.sv}{Link de github} al archivo de testbench.
+
+\subsection{Código}
+\inputminted[fontsize=\footnotesize]{systemverilog}{../tb/tb_shiftleds.sv}
+
+\newpage
+\subsection{Capturas de simulación}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{captures/sim_normal_operation.png}
+    \caption{Operación normal}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{captures/sim_count_disabled.png}
+    \caption{$sw[0] = 0$ mantiene la cuenta y los leds sin alterar}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{captures/sim_count_re-enable.png}
+    \caption{Volver a setear $sw[0] = 1$ retoma la cuenta desde el valor previo}
+\end{figure}
+

@@ -1,0 +1,41 @@
+\documentclass{article}
+\usepackage[spanish]{babel}
+\usepackage{gensymb}
+\usepackage{float}
+\usepackage{graphicx}
+\usepackage{minted}
+\usepackage{amsmath}
+\usepackage{pdfpages}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{subcaption}
+\usepackage[fontsize=8pt]{scrextend}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    }
+\geometry{margin = 1in}
+
+\begin{document}
+
+\begin{titlepage}
+    \centering
+    \vspace{4cm}
+    {\scshape\Huge Laboratorio N° 1 \par}
+    \vspace{3cm}
+    {\itshape\Large Diseño Digital Avanzado \par}
+    \vfill
+    {\Large Mathias Sebastian Garcia\par}
+    \vfill
+    {\Large \today\par}
+\end{titlepage}
+
+\tableofcontents
+
+\include{section_rtl}
+\include{section_tb}
+\include{section_implementation}
+
+\end{document}

@@ -1,0 +1,84 @@
+\section{Implementación en FPGA}
+
+\href{https://github.com/msebgarcia/DDA2024/tree/main/Lab01/wrapper}{Link de github} a los archivos de los wrappers.
+
+\subsection{Wrapper VIO}
+\inputminted[fontsize=\footnotesize]{systemverilog}{../wrapper/vio_wrapper.v}
+
+\newpage
+\subsection{Wrapper ILA}
+\inputminted[fontsize=\footnotesize]{systemverilog}{../wrapper/ila_wrapper.v}
+
+\newpage
+\subsection{Wrapper completo}
+\inputminted[fontsize=\footnotesize]{systemverilog}{../wrapper/shiftleds_wrapper.sv}
+
+\newpage
+\subsection{Capturas}
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}{0.5\textwidth}
+        \includegraphics[width=\textwidth]{captures/impl_c1_led_green_vio.png}
+        \caption{VIO}
+    \end{subfigure}
+
+    \vspace{1cm}
+
+    \begin{subfigure}{\textwidth}
+        \includegraphics[width=\textwidth]{captures/impl_c1_led_green_ila.png}
+        \caption{ILA}
+    \end{subfigure}
+
+    \caption{Led verde seleccionado}
+\end{figure}
+
+\newpage
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}{0.5\textwidth}
+        \includegraphics[width=\textwidth]{captures/impl_c2_led_blue_vio.png}
+        \caption{VIO}
+    \end{subfigure}
+
+    \vspace{1cm}
+
+    \begin{subfigure}{\textwidth}
+        \includegraphics[width=\textwidth]{captures/impl_c2_led_blue_ila.png}
+        \caption{ILA}
+    \end{subfigure}
+
+    \caption{Led azul seleccionado}
+\end{figure}
+
+\newpage
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}{0.4\textwidth}
+        \includegraphics[width=\textwidth]{captures/impl_c3_static_vio.png}
+        \caption{VIO}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.4\textwidth}
+        \includegraphics[width=\textwidth]{captures/impl_c3_static_fpga.png}
+        \caption{FPGA - Led 4 prendido}
+    \end{subfigure}
+    \vspace{1cm}
+
+    \begin{subfigure}{\textwidth}
+        \includegraphics[width=\textwidth]{captures/impl_c3_static_ila.png}
+        \caption{ILA - Sampling constante en 50\%}
+    \end{subfigure}
+
+    \caption{Led quieto}
+\end{figure}
+
+\newpage
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{captures/fpga_reset.png}
+    \caption{FPGA en reset - Led 0 prendido}
+\end{figure}
