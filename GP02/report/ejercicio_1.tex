@@ -3,10 +3,14 @@
 \subsection{Consideraciones de diseño}
 Se tomaron como reservados los exponentes 4'h0 y 4'hf para representaciones especiales:
 \begin{itemize}
-    \item Overflow: se representa $\pm\inf$ con todos los bits del exponente en 1 y la mantisa en 0.
+    \item Overflow: se representa $\pm\infty$ con todos los bits del exponente en 1 y la mantisa en 0.
     \item Underflow: se representa $\pm 0$ con todos los bits del exopnente en 0 y la mantisa en 0.
     \item NaN: si uno de los datos de entrada este se propaga a la salida. Si por algún motivo algún otro bit además del MSB de la mantisa está en 1, el mismo se filtra.
 \end{itemize}
+Además, se decidió no soportar el bit escondido en 0 (implica que el exponente esté todo en 0). El bit escondido se toma en 1 siempre.
+
+\subsection{Arquitectura}
+
 
 \subsection{Código}
 \inputminted[fontsize=\footnotesize]{systemverilog}{../floating_point_multiplier/rtl/floating_point_multiplier.sv}
