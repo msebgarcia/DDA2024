@@ -1,5 +1,5 @@
 from typing import Any, Dict, List
-
+import math
 import cocotb
 from cocotb.handle import SimHandleBase
 from cocotb.queue import Queue
@@ -99,11 +99,11 @@ class RtlModel:
             result -= self.input_monitor.get_n_sample(1) .to_signed()
             result += self.input_monitor.get_n_sample(2) .to_signed()
             result += self.input_monitor.get_n_sample(3) .to_signed()
-            result += self.output_monitor.get_n_sample(2).to_signed()//4
-            result += self.output_monitor.get_n_sample(1).to_signed()//2
+            result += ((self.output_monitor.get_n_sample(2).to_signed()/4) * (2**4))/(2**4)
+            result += ((self.output_monitor.get_n_sample(1).to_signed()/2) * (2**4))/(2**4)
 
             # print(f'Result: {result} | Got: {self.output_monitor.get_n_sample(0).to_signed()} ')
-            assert result == self.output_monitor.get_n_sample(0).to_signed()
+            assert result == self.output_monitor.get_n_sample(0).to_signed()/(2**4)
 
             _ = self.output_monitor.values.get_nowait()
             _ = self.input_monitor.values.get_nowait()
