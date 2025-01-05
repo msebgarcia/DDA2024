@@ -4,7 +4,7 @@ module pipe_handler
     // * Parameters
     // * --------------------------------------------
     parameter                        NB_DATA   = 16 ,
-    parameter                        ADD_PIPE  =  0 ,
+    parameter                        ADD_PIPE  =  1 ,
     parameter                        ADD_RESET =  1
 )
 (
@@ -40,7 +40,7 @@ module pipe_handler
                 always_ff @(posedge i_clock)
                 begin : proc_data_pipe_w_reset
                     if (i_reset)
-                        i_data     <= '0     ;
+                        piped_data <= '0     ;
                     else
                         piped_data <= i_data ;
                 end
